@@ -1,0 +1,120 @@
+name: Bundle Validation & Deployment - Databricks workspaces
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
+
+jobs:
+  validation-deployment:
+    environment: DEV
+    strategy:
+      matrix:
+        region: [ "CUS", "EU2" ]
+    name: "Validate & Deploy Bundle (DEV)"
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: databricks/setup-cli@main
+
+      - name: Log in to Azure
+        uses: azure/login@v2
+        env:
+          AZURE_LOGIN_PRE_CLEANUP: false
+          AZURE_LOGIN_POST_CLEANUP: false
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Validate bundle on DEV workspace
+        run: databricks bundle validate
+        env:
+          DATABRICKS_BUNDLE_ENV: DEV-${{ matrix.region }}
+
+      - name: Deploy bundle to DEV workspace
+        run: databricks bundle deploy
+        env:
+          DATABRICKS_BUNDLE_ENV: DEV-${{ matrix.region }}
+
+  uat-deployment:
+    needs: validation-deployment
+    environment: UAT
+    strategy:
+      matrix:
+        region: [ "CUS", "EU2" ]
+    name: "Validate & Deploy Bundle (UAT)"
+    runs-on: ubuntu-latest
+    if: >
+      needs.validation-deployment.result == 'success' &&
+      github.event_name == 'pull_request' &&
+      github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: databricks/setup-cli@main
+
+      - name: Log in to Azure (UAT)
+        uses: azure/login@v2
+        env:
+          AZURE_LOGIN_PRE_CLEANUP: false
+          AZURE_LOGIN_POST_CLEANUP: false
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Validate bundle on UAT workspace
+        run: databricks bundle validate
+        env:
+          DATABRICKS_BUNDLE_ENV: UAT-${{ matrix.region }}
+
+      - name: Deploy bundle to UAT workspace
+        run: databricks bundle deploy
+        env:
+          DATABRICKS_BUNDLE_ENV: UAT-${{ matrix.region }}
+
+  prod-deployment:
+    needs: uat-deployment
+    environment: PROD
+    strategy:
+      matrix:
+        region: [ "CUS", "EU2" ]
+    name: "Validate & Deploy Bundle (PROD)"
+    runs-on: ubuntu-latest
+    if: >
+      needs.uat-deployment.result == 'success' &&
+      github.event_name == 'pull_request' &&
+      github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: databricks/setup-cli@main
+
+      - name: Log in to Azure (PROD)
+        uses: azure/login@v2
+        env:
+          AZURE_LOGIN_PRE_CLEANUP: false
+          AZURE_LOGIN_POST_CLEANUP: false
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Validate bundle on PROD workspace
+        run: databricks bundle validate
+        env:
+          DATABRICKS_BUNDLE_ENV: PROD-${{ matrix.region }}
+
+      - name: Deploy bundle to PROD workspace
+        run: databricks bundle deploy
+        env:
+          DATABRICKS_BUNDLE_ENV: PROD-${{ matrix.region }}
