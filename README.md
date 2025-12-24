@@ -13,7 +13,7 @@ From the user’s perspective, all configurations are written in YAML files, whi
 In the backend, Databricks internally translates these YAML definitions into Terraform resources. Terraform is used as the execution engine to compute the desired state, compare it with the existing state of the Databricks workspace, and apply the necessary changes. This abstraction allows users to benefit from Terraform’s reliability and state management without writing or maintaining Terraform code directly.
 
 **.github/workflows**
-1The .github/workflows directory is dedicated to managing all CI/CD workflows for this repository. The workflow described here is responsible for validating and deploying Databricks Asset Bundles across Development, User Acceptance Testing, and Production environments.
+The .github/workflows directory is dedicated to managing all CI/CD workflows for this repository. The workflow described here is responsible for validating and deploying Databricks Asset Bundles across Development, User Acceptance Testing, and Production environments.
 
 This pipeline supports deployments to two Azure regions and uses a parallel deployment strategy through a matrix-based regional configuration. As a result, bundle validation and deployment are executed simultaneously for each configured region, ensuring consistency across geographically distributed Databricks workspaces.
 
