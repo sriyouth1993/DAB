@@ -1,0 +1,39 @@
+resources:
+  jobs:
+    test_cosmos_workflow:
+      name: "[${bundle.environment}] test-cosmos-workflow"
+      email_notifications:
+        on_start: false
+        on_success: true
+        on_failure: true
+        emails: ["${var.notification_email}"]
+      job_clusters:
+        - job_cluster_key: cosmos_job_cluster
+          new_cluster:
+            spark_version: 14.3.x-scala2.12
+            node_type_id: Standard_DS3_v2
+            autoscale:
+              min_workers: 2
+              max_workers: 5
+            driver_node_type_id: Standard_DS3_v2
+            policy_id: "${var.sri_job_compute_policy_id}"
+            azure_attributes:
+              availability: "${var.azure_cluster_availability}"
+            custom_tags:
+              "product": "sri-databricks-bundle"
+
+      tasks:
+        - task_key: run_test_cosmos
+          description: "Execute test_cosmos.py"
+          job_cluster_key: cosmos_job_cluster
+
+          notebook_task:
+            notebook_path: ../src/test_cosmos.py
+
+          libraries:
+            - pypi:
+                package: "azure-cosmos"
+                repository: "https://pypi.org/simple"
+            - pypi:
+                package: "azure-identity"
+                repository: "https://pypi.org/simple"
