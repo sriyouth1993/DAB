@@ -1,0 +1,145 @@
+bundle:
+  name: sri_poc_bundle
+
+include:
+  - resources/*.yml
+
+# Global variables
+variables:
+  notification_email:
+    description: Email address for wokrflow notifications (success/failure)
+    DEV-CUS: sripdevcus@gmail.com
+    DEV-EU2: sripdeveu2@gmail.com
+    UAT-CUS: sripuatcus@gmail.com
+    UAT-EU2: sripuateu2@gmail.com
+    PROD-CUS: sripprodcus@gmail.com
+    PROD-EU2: sripprodeu2@gmail.com
+
+  workflow_trigger:
+    description: Workflow trigger state
+    DEV-CUS: "PAUSED"
+    DEV-EU2: "PAUSED"
+    UAT-CUS: "PAUSED"
+    UAT-EU2: "PAUSED" 
+    PROD-CUS: "UNPAUSED"
+    PROD-EU2: "UNPAUSED"
+
+  sri_job_compute_policy:
+    description: Job compute policy ID for Sri POC
+    DEV-CUS: "01234567-89ab-cdef-0123-456789abcdef"
+    DEV-EU2: "12345678-9abc-def0-1234-56789abcdef0"
+    UAT-CUS: "23456789-abcd-ef01-2345-6789abcdef01"
+    UAT-EU2: "3456789a-bcde-f012-3456-789abcdef012"
+    PROD-CUS: "456789ab-cdef-0123-4567-89abcdef0123"
+    PROD-EU2: "56789abc-def0-1234-5678-9abcdef01234"
+
+  azure_cluster_availability:
+    description: Azure cluster availability type
+    DEV-CUS: "SPOT_WITH_FALLBACK_AZURE"
+    DEV-EU2: "SPOT_WITH_FALLBACK_AZURE"
+    UAT-CUS: "ON_DEMAND_AZURE"
+    UAT-EU2: "ON_DEMAND_AZURE"
+    PROD-CUS: "ON_DEMAND_AZURE"
+    PROD-EU2: "ON_DEMAND_AZURE"
+
+# Environments
+environments:
+#  DEV
+  DEV-CUS:
+    workspace:
+      host: https://adb-8611968544572863.4.azuredatabricks.net
+    permissions:
+      - group_name: sri-devops-group
+        level: "CAN_MANAGE"
+    variables:
+      notification_email
+        default: sripdevcus@gmail.com
+      workflow_trigger:
+        default: "PAUSED"
+      sri_job_compute_policy_id:
+        default: "01234567-89ab-cdef-0123-456789abcdef"
+      azure_cluster_availability:
+        default: "SPOT_WITH_FALLBACK_AZURE"
+
+  DEV-EU2:
+    workspace:
+      host: https://adb-2346777876787.7.azuredatabricks.net
+    permissions:
+      - group_name: sri-devops-group
+        level: "CAN_MANAGE"
+    variables:
+      notification_email
+        default: sripdeveu2@gmail.com
+      workflow_trigger:
+        default: "PAUSED"
+      sri_job_compute_policy_id:
+        default: "12345678-9abc-def0-1234-56789abcdef0"
+      azure_cluster_availability:
+        default: "SPOT_WITH_FALLBACK_AZURE"
+
+  # UAT
+  UAT-CUS:
+    workspace:
+      host: https://adb-485013164221122.4.azuredatabricks.net
+    permissions:
+      - group_name: sri-devops-group
+        level: "CAN_MANAGE"
+    variables:
+      notification_email
+        default: sripuatcus@gmail.com
+      workflow_trigger:
+        default: "PAUSED"
+      sri_job_compute_policy_id:
+        default: "12345678-9abc-def0-1234-56789abcdef0"
+      azure_cluster_availability:
+        default: "SPOT_WITH_FALLBACK_AZURE"
+
+  UAT-EU2:
+    workspace:
+      host: https://adb-674897679878977.8.azuredatabricks.net
+    permissions:
+      - group_name: sri-devops-group
+        level: "CAN_MANAGE"
+    variables:
+      notification_email
+        default: sripuateu2@gmail.com
+      workflow_trigger:
+        default: "PAUSED"
+      sri_job_compute_policy_id:
+        default: ""
+      azure_cluster_availability:
+        default: "SPOT_WITH_FALLBACK_AZURE"
+
+  # PROD
+  PROD-CUS:
+    workspace:
+      host: https://adb-678678789878.9.azuredatabricks.net
+    permissions:
+      - group_name: sri-devops-group
+        level: "CAN_VIEW"
+    variables:
+      notification_email
+        default: sripprodcus@gmail.com
+      workflow_trigger:
+        default: "UNPAUSED"
+      sri_job_compute_policy_id:
+        default: "456789ab-cdef-0123-4567-89abcdef0123"
+      azure_cluster_availability:
+        default: "ON_DEMAND_AZURE"
+    
+
+  PROD-EU2:
+    workspace:
+      host: https://adb-9876798789879.9.azuredatabricks.net
+    permissions:
+      - group_name: sri-devops-group
+        level: "CAN_VIEW"
+    variables:
+      notification_email
+        default: sripprodeu2@gmail.com
+      workflow_trigger:
+        default: "UNPAUSED"
+      sri_job_compute_policy_id:
+        default: "56789abc-def0-1234-5678-9abcdef01234"
+      azure_cluster_availability:
+        default: "ON_DEMAND_AZURE"
