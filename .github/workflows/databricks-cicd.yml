@@ -1,9 +1,14 @@
 name: Bundle Validation & Deployment - Databricks workspaces
 
 on:
+  push:
+    branches:
+      - main
+      - hotfix/*
   pull_request:
     branches:
       - main
+      - hotfix/*
   workflow_dispatch:
 
 permissions:
